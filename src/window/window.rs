@@ -42,6 +42,10 @@ use super::window_cache::WindowCache;
 static DEFAULT_WIDTH: u32 = 800u32;
 static DEFAULT_HEIGHT: u32 = 600u32;
 
+pub trait CustomRenderer {
+    fn render(&mut self);
+}
+
 #[cfg(feature = "conrod")]
 struct ConrodContext {
     renderer: ConrodRenderer,
@@ -956,7 +960,7 @@ impl Window {
     fn do_render_with_state<S: State>(&mut self, state: &mut S) -> bool {
         {
             let (camera, planar_camera, renderer, effect) = state.cameras_and_effect_and_renderer();
-            self.should_close = !self.do_render_with(camera, planar_camera, renderer, effect);
+            self.should_close = !self.do_render_with(camera, planar_camera, renderer, effect, None);
         }
 
         if !self.should_close {
@@ -1038,15 +1042,16 @@ impl Window {
         post_processing: Option<&mut dyn PostProcessingEffect>,
     ) -> bool {
         // FIXME: for backward-compatibility, we don't accept any custom renderer here.
-        self.do_render_with(camera, planar_camera, None, post_processing)
+        self.do_render_with(camera, planar_camera, None, post_processing, None)
     }
 
-    fn do_render_with(
+    pub fn do_render_with(
         &mut self,
         camera: Option<&mut dyn Camera>,
         planar_camera: Option<&mut dyn PlanarCamera>,
         renderer: Option<&mut dyn Renderer>,
         post_processing: Option<&mut dyn PostProcessingEffect>,
+        custom_renderer: Option<&mut dyn CustomRenderer>,
     ) -> bool {
         let mut camera = camera;
         let mut planar_camera = planar_camera;
@@ -1060,19 +1065,28 @@ impl Window {
 
         match (camera, planar_camera) {
             (Some(cam), Some(cam2)) => {
-                self.render_single_frame(cam, cam2, renderer, post_processing)
+                self.render_single_frame(cam, cam2, renderer, post_processing, custom_renderer)
             }
-            (None, Some(cam2)) => {
-                self.render_single_frame(&mut *bself_cam, cam2, renderer, post_processing)
-            }
-            (Some(cam), None) => {
-                self.render_single_frame(cam, &mut *bself_cam2, renderer, post_processing)
-            }
+            (None, Some(cam2)) => self.render_single_frame(
+                &mut *bself_cam,
+                cam2,
+                renderer,
+                post_processing,
+                custom_renderer,
+            ),
+            (Some(cam), None) => self.render_single_frame(
+                cam,
+                &mut *bself_cam2,
+                renderer,
+                post_processing,
+                custom_renderer,
+            ),
             (None, None) => self.render_single_frame(
                 &mut *bself_cam,
                 &mut *bself_cam2,
                 renderer,
                 post_processing,
+                custom_renderer,
             ),
         }
     }
@@ -1083,6 +1097,7 @@ impl Window {
         planar_camera: &mut dyn PlanarCamera,
         mut renderer: Option<&mut dyn Renderer>,
         mut post_processing: Option<&mut dyn PostProcessingEffect>,
+        mut custom_renderer: Option<&mut dyn CustomRenderer>,
     ) -> bool {
         // XXX: too bad we have to do this at each frame…
         let w = self.width();
@@ -1145,6 +1160,9 @@ impl Window {
             self.canvas.scale_factor() as f32,
             &self.conrod_context.textures,
         );
+        if let Some(ref mut custom_renderer) = custom_renderer {
+            custom_renderer.render();
+        }
 
         // We are done: swap buffers
         self.canvas.swap_buffers();

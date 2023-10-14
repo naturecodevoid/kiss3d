@@ -16,5 +16,5 @@ pub use gl_canvas::GLCanvas;
 pub use state::State;
 #[cfg(target_arch = "wasm32")]
 pub use webgl_canvas::WebGLCanvas;
-pub use window::Window;
+pub use window::{CustomRenderer, Window};
 pub(crate) use window_cache::WINDOW_CACHE;
