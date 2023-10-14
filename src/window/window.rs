@@ -85,7 +85,6 @@ pub struct Window {
     #[cfg(feature = "conrod")]
     conrod_context: ConrodContext,
     canvas: Canvas,
-    custom_renderer: fn(u32, u32),
 }
 
 impl Drop for Window {
@@ -501,30 +500,16 @@ impl Window {
     ///
     /// # Arguments
     /// * `title` - the window title
-    pub fn new_hidden(title: &str, custom_renderer: fn(u32, u32)) -> Window {
-        Window::do_new(
-            title,
-            true,
-            DEFAULT_WIDTH,
-            DEFAULT_HEIGHT,
-            None,
-            custom_renderer,
-        )
+    pub fn new_hidden(title: &str) -> Window {
+        Window::do_new(title, true, DEFAULT_WIDTH, DEFAULT_HEIGHT, None)
     }
 
     /// Opens a window then calls a user-defined procedure.
     ///
     /// # Arguments
     /// * `title` - the window title
-    pub fn new(title: &str, custom_renderer: fn(u32, u32)) -> Window {
-        Window::do_new(
-            title,
-            false,
-            DEFAULT_WIDTH,
-            DEFAULT_HEIGHT,
-            None,
-            custom_renderer,
-        )
+    pub fn new(title: &str) -> Window {
+        Window::do_new(title, false, DEFAULT_WIDTH, DEFAULT_HEIGHT, None)
     }
 
     /// Opens a window with a custom size then calls a user-defined procedure.
@@ -533,24 +518,13 @@ impl Window {
     /// * `title` - the window title.
     /// * `width` - the window width.
     /// * `height` - the window height.
-    pub fn new_with_size(
-        title: &str,
-        width: u32,
-        height: u32,
-        custom_renderer: fn(u32, u32),
-    ) -> Window {
-        Window::do_new(title, false, width, height, None, custom_renderer)
+    pub fn new_with_size(title: &str, width: u32, height: u32) -> Window {
+        Window::do_new(title, false, width, height, None)
     }
 
     /// Opens a window with custom options for vsync and AA.
-    pub fn new_with_setup(
-        title: &str,
-        width: u32,
-        height: u32,
-        setup: CanvasSetup,
-        custom_renderer: fn(u32, u32),
-    ) -> Window {
-        Window::do_new(title, false, width, height, Some(setup), custom_renderer)
+    pub fn new_with_setup(title: &str, width: u32, height: u32, setup: CanvasSetup) -> Window {
+        Window::do_new(title, false, width, height, Some(setup))
     }
 
     // FIXME: make this pub?
@@ -560,7 +534,6 @@ impl Window {
         width: u32,
         height: u32,
         setup: Option<CanvasSetup>,
-        custom_renderer: fn(u32, u32),
     ) -> Window {
         let (event_send, event_receive) = mpsc::channel();
         let canvas = Canvas::open(title, hide, width, height, setup, event_send);
@@ -597,7 +570,6 @@ impl Window {
                 Point3::new(0.0f32, 0.0, -1.0),
                 Point3::origin(),
             ))),
-            custom_renderer,
         };
 
         if hide {
@@ -1173,7 +1145,6 @@ impl Window {
             self.canvas.scale_factor() as f32,
             &self.conrod_context.textures,
         );
-        (self.custom_renderer)(w, h);
 
         // We are done: swap buffers
         self.canvas.swap_buffers();
