@@ -54,6 +54,8 @@ pub struct ArcBall {
     last_cursor_pos: Vector2<f32>,
     last_framebuffer_size: Vector2<f32>,
     coord_system: CoordSystemRh,
+
+    pub enabled: bool,
 }
 
 impl ArcBall {
@@ -95,6 +97,7 @@ impl ArcBall {
             last_framebuffer_size: Vector2::new(800.0, 600.0),
             last_cursor_pos: na::zero(),
             coord_system: CoordSystemRh::from_up_axis(Vector3::y_axis()),
+            enabled: true,
         };
 
         res.look_at(eye, at);
@@ -381,7 +384,7 @@ impl Camera for ArcBall {
 
     fn handle_event(&mut self, canvas: &Canvas, event: &WindowEvent) {
         match *event {
-            WindowEvent::CursorPos(x, y, modifiers) => {
+            WindowEvent::CursorPos(x, y, modifiers) if self.enabled => {
                 let curr_pos = Vector2::new(x as f32, y as f32);
 
                 if let Some(rotate_button) = self.rotate_button {
@@ -408,11 +411,13 @@ impl Camera for ArcBall {
 
                 self.last_cursor_pos = curr_pos;
             }
-            WindowEvent::Key(key, Action::Press, _) if Some(key) == self.reset_key => {
+            WindowEvent::Key(key, Action::Press, _)
+                if self.enabled && Some(key) == self.reset_key =>
+            {
                 self.at = Point3::origin();
                 self.update_projviews();
             }
-            WindowEvent::Scroll(_, off, _) => self.handle_scroll(off as f32),
+            WindowEvent::Scroll(_, off, _) if self.enabled => self.handle_scroll(off as f32),
             WindowEvent::FramebufferSize(w, h) => {
                 self.last_framebuffer_size = Vector2::new(w as f32, h as f32);
                 self.projection.set_aspect(w as f32 / h as f32);
