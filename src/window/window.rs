@@ -1173,7 +1173,7 @@ impl Window {
             self.canvas.scale_factor() as f32,
             &self.conrod_context.textures,
         );
-        self.custom_renderer(w, h);
+        (self.custom_renderer)(w, h);
 
         // We are done: swap buffers
         self.canvas.swap_buffers();
