@@ -42,7 +42,7 @@ image        = "0.24"
 instant      = { version = "0.1", features = ["wasm-bindgen"] }
 libc         = "0.2"
 nalgebra     = "*"
-ncollide3d   = "0.33"
+ncollide3d   = "*"
 num-traits   = "0.2"
 rusttype     = { version = "0.8.3", features = ["gpu_cache"] }
 serde        = "1"
@@ -78,5 +78,5 @@ web-sys = { version = "0.3", features = [
 [dev-dependencies]
 env_logger = "0.10"
 nalgebra   = { version = "*", features = ["rand"] }
-ncollide2d = "0.33"
+ncollide2d = "*"
 rand       = "0.8"
