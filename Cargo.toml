@@ -41,7 +41,7 @@ glow         = "0.12"
 image        = "0.24"
 instant      = { version = "0.1", features = ["wasm-bindgen"] }
 libc         = "0.2"
-nalgebra     = "0.30"
+nalgebra     = "*"
 ncollide3d   = "0.33"
 num-traits   = "0.2"
 rusttype     = { version = "0.8.3", features = ["gpu_cache"] }
@@ -77,6 +77,6 @@ web-sys = { version = "0.3", features = [
 
 [dev-dependencies]
 env_logger = "0.10"
-nalgebra   = { version = "0.30", features = ["rand"] }
+nalgebra   = { version = "*", features = ["rand"] }
 ncollide2d = "0.33"
 rand       = "0.8"
