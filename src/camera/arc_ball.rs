@@ -384,28 +384,30 @@ impl Camera for ArcBall {
 
     fn handle_event(&mut self, canvas: &Canvas, event: &WindowEvent) {
         match *event {
-            WindowEvent::CursorPos(x, y, modifiers) if self.enabled => {
+            WindowEvent::CursorPos(x, y, modifiers) {
                 let curr_pos = Vector2::new(x as f32, y as f32);
 
-                if let Some(rotate_button) = self.rotate_button {
-                    if canvas.get_mouse_button(rotate_button) == Action::Press
-                        && self
-                            .rotate_modifiers
-                            .map(|m| m == modifiers)
-                            .unwrap_or(true)
-                    {
-                        let dpos = curr_pos - self.last_cursor_pos;
-                        self.handle_left_button_displacement(&dpos)
+                if self.enabled {
+                    if let Some(rotate_button) = self.rotate_button {
+                        if canvas.get_mouse_button(rotate_button) == Action::Press
+                            && self
+                                .rotate_modifiers
+                                .map(|m| m == modifiers)
+                                .unwrap_or(true)
+                        {
+                            let dpos = curr_pos - self.last_cursor_pos;
+                            self.handle_left_button_displacement(&dpos)
+                        }
                     }
-                }
 
-                if let Some(drag_button) = self.drag_button {
-                    if canvas.get_mouse_button(drag_button) == Action::Press
-                        && self.drag_modifiers.map(|m| m == modifiers).unwrap_or(true)
-                    {
-                        let dpos = curr_pos - self.last_cursor_pos;
-                        let dpos_norm = dpos.component_div(&self.last_framebuffer_size);
-                        self.handle_right_button_displacement(&dpos_norm)
+                    if let Some(drag_button) = self.drag_button {
+                        if canvas.get_mouse_button(drag_button) == Action::Press
+                            && self.drag_modifiers.map(|m| m == modifiers).unwrap_or(true)
+                        {
+                            let dpos = curr_pos - self.last_cursor_pos;
+                            let dpos_norm = dpos.component_div(&self.last_framebuffer_size);
+                            self.handle_right_button_displacement(&dpos_norm)
+                        }
                     }
                 }
 
